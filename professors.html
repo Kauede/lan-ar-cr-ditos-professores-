@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Professores </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .professor-card {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .professor-card:hover {
+            background-color: #d6d8db;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            display: none; /* Inicialmente oculto */
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        .credit-btn {
+            background-color: #007bff; /* Cor para os botões de crédito */
+            margin-right: 5px;
+        }
+
+        .credit-btn:hover {
+            background-color: #0069d9;
+        }
+
+        .credit-input {
+            margin-top: 10px;
+            display: none; /* Oculto inicialmente */
+        }
+
+        .credits-display {
+            font-size: 1.5em; /* Aumenta o tamanho da fonte */
+            color: #007bff; /* Cor para o saldo de créditos */
+            margin-top: 10px;
+            font-weight: bold; /* Negrito para destacar */
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            width: 60px;
+            margin-right: 5px;
+            font-size: 16px;
+        }
+
+        input[type="number"]:focus {
+            border-color: #28a745; /* Cor ao focar no campo */
+            outline: none; /* Remove o contorno padrão */
+        }
+
+        .footer {
+            margin-top: 20px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 10px;
+            }
+
+            button {
+                width: 100%;
+                font-size: 14px;
+            }
+
+            .credits-display {
+                font-size: 1.2em; /* Ajusta o tamanho da fonte em telas menores */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Adicionar e Remover Professores</h1>
+
+        <!-- Botão para adicionar novo professor -->
+        <button id="add-professor-btn">Adicionar Professor</button>
+
+        <!-- Lista de professores -->
+        <div id="professor-list"></div>
+
+        <div class="footer">
+            <button onclick="goBack()">Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back(); // Volta para a tela anterior
+        }
+
+        // Função para carregar e exibir a lista de professores
+        function loadProfessors() {
+            const professors = JSON.parse(localStorage.getItem('professors')) || [];
+            const professorList = document.getElementById('professor-list');
+            professorList.innerHTML = ''; // Limpa a lista atual
+
+            professors.forEach((professor, index) => {
+                const professorCard = document.createElement('div');
+                professorCard.className = 'professor-card';
+                professorCard.innerHTML = `
+                    <strong onclick="toggleCreditInput(${index})">${professor.name}</strong> 
+                    - <span class="credits-display" id="credits-${index}">${professor.credits}</span> Créditos
+                    <div class="credit-input" id="credit-input-${index}">
+                        <input type="number" id="add-credits-${index}" placeholder="Adicionar" min="1">
+                        <button class="credit-btn" onclick="addCredits(${index})">Adicionar Créditos</button>
+                        <input type="number" id="remove-credits-${index}" placeholder="Remover" min="1">
+                        <button class="credit-btn" onclick="removeCredits(${index})">Remover Créditos</button>
+                    </div>
+                    <button class="remove-btn" id="remove-btn-${index}" onclick="removeProfessor(${index})">Remover Professor</button>
+                `;
+                professorList.appendChild(professorCard);
+            });
+        }
+
+        // Adiciona um novo professor à lista
+        document.getElementById('add-professor-btn').addEventListener('click', function() {
+            const newProfessorName = prompt("Digite o nome do novo professor:");
+            if (newProfessorName) {
+                const professors = JSON.parse(localStorage.getItem('professors')) || [];
+                professors.push({ name: newProfessorName, credits: 0 }); // Adiciona o novo professor com 0 créditos
+                localStorage.setItem('professors', JSON.stringify(professors)); // Salva a lista atualizada
+                alert(`Professor ${newProfessorName} adicionado com sucesso!`); // Mensagem de confirmação
+                loadProfessors(); // Atualiza a lista de professores
+            }
+        });
+
+        // Remove um professor da lista
+        function removeProfessor(index) {
+            const professors = JSON.parse(localStorage.getItem('professors')) || [];
+            professors.splice(index, 1); // Remove o professor da lista
+            localStorage.setItem('professors', JSON.stringify(professors)); // Salva a lista atualizada
+            loadProfessors(); // Atualiza a lista de professores
+            alert(`Professor removido com sucesso!`); // Mensagem de confirmação
+        }
+
+        // Adiciona créditos ao professor
+        function addCredits(index) {
+            const creditsInput = document.getElementById(`add-credits-${index}`);
+            const creditsToAdd = parseInt(creditsInput.value);
+
+            if (creditsToAdd > 0) {
+                const creditsElement = document.getElementById(`credits-${index}`);
+                let currentCredits = parseInt(creditsElement.textContent);
+                currentCredits += creditsToAdd;
+                creditsElement.textContent = currentCredits;
+
+                const professors = JSON.parse(localStorage.getItem('professors')) || [];
+                professors[index].credits = currentCredits;
+                localStorage.setItem('professors', JSON.stringify(professors)); // Salva a lista atualizada
+                creditsInput.value = ''; // Limpa o campo de entrada
+            } else {
+                alert("Por favor, insira um valor válido para adicionar créditos.");
+            }
+        }
+
+        // Remove créditos do professor
+        function removeCredits(index) {
+            const creditsInput = document.getElementById(`remove-credits-${index}`);
+            const creditsToRemove = parseInt(creditsInput.value);
+
+            if (creditsToRemove > 0) {
+                const creditsElement = document.getElementById(`credits-${index}`);
+                let currentCredits = parseInt(creditsElement.textContent);
+
+                if (currentCredits - creditsToRemove < 0) {
+                    alert("O saldo de créditos não pode ser negativo.");
+                } else {
+                    currentCredits -= creditsToRemove;
+                    creditsElement.textContent = currentCredits;
+
+                    const professors = JSON.parse(localStorage.getItem('professors')) || [];
+                    professors[index].credits = currentCredits;
+                    localStorage.setItem('professors', JSON.stringify(professors)); // Salva a lista atualizada
+                    creditsInput.value = ''; // Limpa o campo de entrada
+                }
+            } else {
+                alert("Por favor, insira um valor válido para remover créditos.");
+            }
+        }
+
+        // Alterna a exibição do campo de adição de créditos e do botão de remover
+        function toggleCreditInput(index) {
+            const creditInput = document.getElementById(`credit-input-${index}`);
+            const removeBtn = document.getElementById(`remove-btn-${index}`);
+            const isVisible = creditInput.style.display === 'block'; // Verifica se está visível
+            creditInput.style.display = isVisible ? 'none' : 'block'; // Alterna a exibição do campo de créditos
+            removeBtn.style.display = isVisible ? 'none' : 'block'; // Alterna a exibição do botão de remover
+        }
+
+        // Carrega a lista de professores ao abrir a página
+        loadProfessors();
+    </script>
+</body>
+</html>

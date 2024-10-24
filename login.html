@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #202124;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        .message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .footer a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+
+        .register-container {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .register-container a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Fazer login</h1>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Usuário" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div class="message" id="message"></div>
+        <div class="footer">
+            <p><a href="#" id="show-register">Registrar novo usuário</a></p>
+        </div>
+
+        <div class="register-container" id="register-container" style="display: none;">
+            <h1>Registrar Usuário</h1>
+            <input type="text" id="new-username" placeholder="Novo Usuário" required>
+            <input type="password" id="new-password" placeholder="Nova Senha" required>
+            <button id="register-btn">Registrar</button>
+            <div class="message" id="register-message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const message = document.getElementById('message');
+            const storedUsername = localStorage.getItem('username');
+            if (storedUsername) {
+                message.textContent = "Você já está logado. Por favor, faça logout para entrar novamente.";
+                setTimeout(() => {
+                    window.location.href = 'main.html'; // Redireciona automaticamente se já estiver logado
+                }, 2000);
+            }
+
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                // Verifica se o usuário existe
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const user = users.find(user => user.username === username && user.password === password);
+
+                if (user) {
+                    localStorage.setItem('username', username);
+                    window.location.href = 'main.html'; // Redireciona para a tela principal
+                } else {
+                    alert('Usuário ou senha incorretos.');
+                }
+            });
+
+            // Mostra a seção de registro
+            document.getElementById('show-register').addEventListener('click', function() {
+                document.getElementById('register-container').style.display = 'block';
+            });
+
+            // Registra novo usuário
+            document.getElementById('register-btn').addEventListener('click', function() {
+                const newUsername = document.getElementById('new-username').value;
+                const newPassword = document.getElementById('new-password').value;
+                const registerMessage = document.getElementById('register-message');
+
+                if (newUsername && newPassword) {
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+                    const existingUser = users.find(user => user.username === newUsername);
+
+                    if (!existingUser) {
+                        users.push({ username: newUsername, password: newPassword });
+                        localStorage.setItem('users', JSON.stringify(users));
+                        registerMessage.textContent = "Usuário registrado com sucesso!";
+                        registerMessage.style.color = "green";
+
+                        // Oculta a seção de registro e exibe a mensagem de sucesso
+                        document.getElementById('register-container').style.display = 'none';
+                        document.getElementById('message').textContent = "Por favor, faça login.";
+                    } else {
+                        registerMessage.textContent = "Usuário já existe. Escolha outro nome.";
+                        registerMessage.style.color = "red";
+                    }
+                } else {
+                    registerMessage.textContent = "Por favor, preencha todos os campos.";
+                    registerMessage.style.color = "red";
+                }
+            });
+        });
+    </script>
+</body>
+</html>

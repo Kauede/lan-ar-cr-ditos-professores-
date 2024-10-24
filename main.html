@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela Principal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bem-vindo, <span id="username"></span>!</h1>
+    <button class="school-button" onclick="goToProfessors()">Lista de Professores</button>
+    <button class="logout-btn" onclick="logout()">Sair</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                alert("Por favor, faça login."); // Mensagem de aviso
+                window.location.href = 'login.html'; // Redireciona para a tela de login
+            } else {
+                document.getElementById('username').textContent = username;
+                history.replaceState(null, null, location.href); // Evita a navegação anterior
+            }
+        });
+
+        function goToProfessors() {
+            window.location.href = 'professors.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('username'); // Remove o usuário do localStorage
+            alert("Você saiu da conta.");
+            window.location.href = 'login.html'; // Redireciona para a tela de login
+        }
+    </script>
+</body>
+</html>
